@@ -41,7 +41,7 @@ jobs:
 
             console.log('created release', { release });
         
-            for (let file of await fs.readdir('./build')) {
+            for (let file of await fs.readdir('build')) {
               // do whatever filtering you want here, I'm just uploading all the files
               console.log('uploading', file);
 

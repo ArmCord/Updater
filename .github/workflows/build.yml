@@ -1,0 +1,56 @@
+name: build
+
+on: push
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: jiro4989/setup-nim-action@v1
+          with:
+            nim-version: '1.6.2' # default is 'stable'
+      - name: Build the project on Linux
+        run: nim c -d:ssl src/Updater.nim
+      - name: Build the project on Windows
+        run: sudo apt install mingw-w64 && nim c --os:Windows -d:mingw --cpu:amd64 -d:ssl src/Updater.nim
+      - uses: actions/checkout@v2
+      - id: vars
+        shell: bash
+          run: |
+          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+      - run: node scripts/create-release
+        env:
+          COMMIT: ${{ steps.vars.outputs.sha_short }}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.vars.outputs.sha_short }}
+          release_name: Release ${{ steps.vars.outputs.sha_short }}
+          draft: true
+          prerelease: false
+          body_path: ./builds/release.md
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./builds/Updater
+          asset_name: UpdaterLinux
+          asset_content_type: application/octet-stream
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./builds/Updater.exe
+          asset_name: UpdaterWindows.exe
+          asset_content_type: application/octet-stream
+
+      

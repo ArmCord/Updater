@@ -30,7 +30,7 @@ jobs:
             
             const { repo: { owner, repo }, sha } = context;
             console.log({ owner, repo, sha });
-
+            var __dirname = fs.realpathSync('.');
             const release = await github.repos.createRelease({
               owner, repo,
               tag_name: SHORT,

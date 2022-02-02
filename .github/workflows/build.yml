@@ -48,7 +48,7 @@ jobs:
                 owner, repo,
                 release_id: release.data.id,
                 name: file,
-                data: await fs.readFile(`./${file}`)
+                data: await fs.readFile(`${__dirname}/build/${file}`)
               });            
             }
       - run: |

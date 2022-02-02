@@ -5,3 +5,4 @@ build.sh
 build_info.json
 src/Updater
 src/Updater.exe
+build/

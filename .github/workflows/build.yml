@@ -9,9 +9,9 @@ jobs:
         with:
           nim-version: '1.6.2' # default is 'stable'
       - name: Build the project on Linux
-        run: nim c -d:ssl src/Updater.nim
+        run: nim c -d:ssl --outdir:build src/Updater.nim
       - name: Build the project on Windows
-        run: sudo apt install mingw-w64 && nim c --os:Windows -d:mingw --cpu:amd64 -d:ssl src/Updater.nim
+        run: sudo apt install mingw-w64 && nim c --os:Windows -d:mingw --outdir:build --cpu:amd64 -d:ssl src/Updater.nim
       - uses: actions/checkout@v2
       - id: vars
         shell: bash
@@ -33,7 +33,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./src/Updater
+          asset_path: ./build/Updater
           asset_name: UpdaterLinux
           asset_content_type: application/octet-stream
       - uses: actions/upload-release-asset@v1
@@ -41,7 +41,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./src/UpdaterWindows.exe
+          asset_path: ./build/UpdaterWindows.exe
           asset_name: UpdaterWin.exe
           asset_content_type: application/octet-stream
       - run: |

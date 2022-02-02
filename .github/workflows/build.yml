@@ -17,10 +17,6 @@ jobs:
         shell: bash
         run: |
           echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-      - run: node scripts/create-release
-        env:
-          COMMIT: ${{ steps.vars.outputs.sha_short }}
-
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -31,7 +27,7 @@ jobs:
           release_name: Release ${{ steps.vars.outputs.sha_short }}
           draft: true
           prerelease: false
-          body_path: ./builds/release.md
+          body_path: ./.github/release.md
       - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

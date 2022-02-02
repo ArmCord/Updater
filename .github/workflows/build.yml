@@ -9,48 +9,40 @@ jobs:
         with:
           nim-version: '1.6.2' # default is 'stable'
       - name: Build the project on Linux
-        run: nim c -d:ssl --outdir:build src/Updater.nim
+        run: nim c -d:ssl src/Updater.nim
       - name: Build the project on Windows
-        run: sudo apt install mingw-w64 && nim c --os:Windows -d:mingw --outdir:build --cpu:amd64 -d:ssl src/Updater.nim
+        run: sudo apt install mingw-w64 && nim c --os:Windows -d:mingw --cpu:amd64 -d:ssl src/Updater.nim
       - id: vars
         shell: bash
         run: |
           echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
       - name: Create Release
-        uses: actions/github-script@v2
+        id: create_release
+        uses: actions/create-release@v1
         env:
-          SHORT: steps.vars.outputs.sha_short
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            console.log('environment', process.versions);
-            const { SHORT } = process.env
-            const fs = require('fs').promises;
-            const path = require("path")
-            const { repo: { owner, repo }, sha } = context;
-            console.log({ owner, repo, sha });
-            var __dirname = path.resolve();
-            const release = await github.repos.createRelease({
-              owner, repo,
-              tag_name: SHORT,
-              release_name: `Release ${SHORT}`,
-              draft: true,
-              target_commitish: sha
-            });
-
-            console.log('created release', { release });
-        
-            for (let file of await fs.readdir(__dirname + '/build')) {
-              // do whatever filtering you want here, I'm just uploading all the files
-              console.log('uploading', file);
-
-              await github.repos.uploadReleaseAsset({
-                owner, repo,
-                release_id: release.data.id,
-                name: file,
-                data: await fs.readFile(`${__dirname}/build/${file}`)
-              });            
-            }
+          tag_name: ${{ steps.vars.outputs.sha_short }}
+          release_name: Release ${{ steps.vars.outputs.sha_short }}
+          draft: true
+          prerelease: false
+          body_path: ./.github/release.md
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: /home/runner/work/Updater/Updater/src/Updater
+          asset_name: UpdaterLinux
+          asset_content_type: application/octet-stream
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: /home/runner/work/Updater/Updater/src/Updater.exe
+          asset_name: UpdaterWindows.exe
+          asset_content_type: application/octet-stream
       - run: |
           curl --request PATCH \
           -H "Accept: application/vnd.github.v3+json" \

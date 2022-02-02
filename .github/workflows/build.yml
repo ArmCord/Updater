@@ -27,10 +27,10 @@ jobs:
             console.log('environment', process.versions);
             const { SHORT } = process.env
             const fs = require('fs').promises;
-            
+            const path = require("path")
             const { repo: { owner, repo }, sha } = context;
             console.log({ owner, repo, sha });
-            var __dirname = process.env.PWD
+            var __dirname = path.resolve();
             const release = await github.repos.createRelease({
               owner, repo,
               tag_name: SHORT,

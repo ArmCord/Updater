@@ -12,7 +12,6 @@ jobs:
         run: nim c -d:ssl --outdir:build src/Updater.nim
       - name: Build the project on Windows
         run: sudo apt install mingw-w64 && nim c --os:Windows -d:mingw --outdir:build --cpu:amd64 -d:ssl src/Updater.nim
-      - uses: actions/checkout@v2
       - id: vars
         shell: bash
         run: |
@@ -41,7 +40,7 @@ jobs:
 
             console.log('created release', { release });
         
-            for (let file of await fs.readdir(__dirname + 'build/')) {
+            for (let file of await fs.readdir(__dirname + '/build')) {
               // do whatever filtering you want here, I'm just uploading all the files
               console.log('uploading', file);
 

@@ -21,9 +21,11 @@ when isMainModule:
   echo("Platform: " & hostOS)
   checkInternetConnection()
   checkIfValidDirectory() 
-  var fetchVersion = fetch("https://armcord.xyz/latest.json")
+  var endpoint = parseJson(readFile("build_info.json"))["update_endpoint"].getStr()
+  var fetchVersion = fetch(endpoint & "latest.json")
   var latestVersion = parseJson(fetchVersion)["version"].getStr()
   var currentVersion = parseJson(readFile("build_info.json"))["version"].getStr()
+  echo("Update endpoint: " & endpoint)
   echo("Latest version: " & latestVersion)
   echo("Current version: " & currentVersion)
   var a = parseInt(latestVersion.replace(".", "")) # Remove the dots to compare
@@ -32,11 +34,27 @@ when isMainModule:
     echo("New version available!")
     echo("Getting the latest asar.")
     try:
-      writeFile("app.asar", fetch("https://armcord.xyz/app.asar"))
-      writeFile("build_info.json", fetch("https://armcord.xyz/latest.json"))
+      writeFile("app.asar", fetch(endpoint & "app.asar"))
+      writeFile("build_info.json", fetch(endpoint & "latest.json"))
     except Exception as e:
       echo("Failed to download the latest asar: ", e.msg)
       quit(1)
     echo("Update installation has finished. You should be able to use the new version of ArmCord.")
   else:
     echo("No new version available.")
+    if (a < b):
+      echo("You have a newer version than the latest version available on the update endpoint.")
+      echo("Do you want to downgrade to version available on update server?")
+      write(stdout, "[y/n]: ")
+      var input = readLine(stdin)
+      if (input == "y"):
+        echo("Getting the latest asar.")
+        try:
+          writeFile("app.asar", fetch(endpoint & "app.asar"))
+          writeFile("build_info.json", fetch(endpoint & "latest.json"))
+        except Exception as e:
+          echo("Failed to download the latest asar: ", e.msg)
+          quit(1)
+        echo("Update installation has finished. You should be able to use the new version of ArmCord.")
+      else:
+        echo("Downgrading won't be performed.")

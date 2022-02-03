@@ -8,6 +8,8 @@ jobs:
       - uses: jiro4989/setup-nim-action@v1
         with:
           nim-version: '1.6.2' # default is 'stable'
+      - name: Install dependencies
+        run: nimble install
       - name: Build the project on Linux
         run: nim c -d:ssl src/Updater.nim
       - name: Build the project on Windows

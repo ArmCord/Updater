@@ -26,6 +26,8 @@ when isMainModule:
   var latestVersion = parseJson(fetchVersion)["version"].getStr()
   var currentVersion = parseJson(readFile("build_info.json"))["version"].getStr()
   echo("Update endpoint: " & endpoint)
+  if parseJson(fetchVersion)["note"].getStr() != "":
+    echo("Note from update server: " & parseJson(fetchVersion)["note"].getStr())
   echo("Latest version: " & latestVersion)
   echo("Current version: " & currentVersion)
   var a = parseInt(latestVersion.replace(".", "")) # Remove the dots to compare

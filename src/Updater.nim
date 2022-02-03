@@ -1,23 +1,27 @@
-import std/httpclient
+import puppy
 import std/json
 import std/strutils
-
-var client = newHttpClient(timeout = 4000)
-proc onProgressChanged(total, progress, speed: BiggestInt) =
-  echo("Downloaded ", progress, " of ", total)
-  echo("Current rate: ", speed div 1000, "kb/s")
+from os import fileExists
 proc checkInternetConnection() =
   try:
-    discard client.getContent("https://example.com/")
+    discard fetch("https://example.com/")
     echo("Internet connection is OK")
   except Exception as e:
     echo "Internet test has failed! Check your internet connection: ", e.msg
     quit(1)
+proc checkIfValidDirectory() =
+  if (fileExists("app.asar") and fileExists("build_info.json")):
+    echo("Required files exist.")
+  else:
+    echo("Please place the updater in correct path (resources folder). Exiting.")
+    quit(1)
+
 when isMainModule:
   echo("ArmCord Updater")
   echo("Platform: " & hostOS)
   checkInternetConnection()
-  var fetchVersion = client.getContent("https://armcord.xyz/latest.json")
+  checkIfValidDirectory() 
+  var fetchVersion = fetch("https://armcord.xyz/latest.json")
   var latestVersion = parseJson(fetchVersion)["version"].getStr()
   var currentVersion = parseJson(readFile("build_info.json"))["version"].getStr()
   echo("Latest version: " & latestVersion)
@@ -27,7 +31,12 @@ when isMainModule:
   if (a > b):
     echo("New version available!")
     echo("Getting the latest asar.")
-    client.onProgressChanged = onProgressChanged
-    writeFile("app.asar", client.getContent("https://armcord.xyz/app.asar"))
+    try:
+      writeFile("app.asar", fetch("https://armcord.xyz/app.asar"))
+      writeFile("build_info.json", fetch("https://armcord.xyz/latest.json"))
+    except Exception as e:
+      echo("Failed to download the latest asar: ", e.msg)
+      quit(1)
+    echo("Update installation has finished. You should be able to use the new version of ArmCord.")
   else:
     echo("No new version available.")

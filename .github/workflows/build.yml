@@ -9,7 +9,7 @@ jobs:
         with:
           nim-version: '1.6.2' # default is 'stable'
       - name: Install dependencies
-        run: nimble install
+        run: nimble install -y
       - name: Build the project on Linux
         run: nim c -d:ssl src/Updater.nim
       - name: Build the project on Windows

@@ -27,6 +27,8 @@ proc downloadUpdate(endpoint:string) =
       writeFile("build_info.json", fetch(endpoint & "latest.json"))
     except Exception as e:
       echo("Failed to download the latest asar: ", e.msg)
+      moveFile("app.asar.old", "app.asar")
+      moveFile("build_info.json.old", "build_info.json")
       quit(1)
     echo ("Downloaded the latest asar. Checking checksums")
     if (parseJson(readFile("build_info.json"))["md5"].getStr() == getMD5(readFile("app.asar"))):

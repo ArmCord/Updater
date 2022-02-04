@@ -11,9 +11,9 @@ jobs:
       - name: Install dependencies
         run: nimble install -y
       - name: Build the project on Linux
-        run: nim c src/Updater.nim
+        run: nim c -d:release src/Updater.nim
       - name: Build the project on Windows
-        run: sudo apt install mingw-w64 && nim c --os:Windows -d:mingw --cpu:amd64 src/Updater.nim
+        run: sudo apt install mingw-w64 && nim c --os:Windows -d:mingw -d:release --cpu:amd64 src/Updater.nim
       - id: vars
         shell: bash
         run: |

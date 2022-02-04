@@ -5,6 +5,7 @@ Experimental updater for ArmCord made in Nim.
 - **Quick and lightweight** 
 - **One binary is whole updater**
 - **Supports custom update servers**
+- **Checks for checksums**
 ## How to use it?
 ### 1. Client side:
 - Download the latest version of the updater from [here](https://github.com/ArmCord/Updater/releases/latest).
